@@ -6,23 +6,24 @@ ROBOT_W = 0.6
 ROBOT_H = 0.6
 
 class Armor(Enum):
-    FRONT = 0
-    LEFT = 1
-    BACK = 2
-    RIGHT = 3
+    FRONT = 20
+    LEFT = 40
+    BACK = 60
+    RIGHT = 40
 
 class Team(Enum):
     RED = 0
     BLUE = 1
 
 class Pose():
-    def __init__(self, pose=[0,0,0], linear_speed=[0,0], angular_speed=0):
+    def __init__(self, pose=[0,0,0,0], linear_speed=[0,0], angular_speed=0):
         #TODO: A pose class in utils, a pose+vel calss in utils(refer to nav_msgs/Odometry)
-        self.chassis.x = pose[0]
-        self.chassis.y = pose[1]
-        self.chassis.theta = pose[2]
+        self.x = pose[0]
+        self.y = pose[1]
+        self.theta = pose[2]
         #TODO: speed, L,W,H
-        self.gimbal = self.chassis
+        self.gimbal_theta = pose[3]
+        self.armor
 
 class Robot_State():
     def __init__(self, team=Team.BLUE, position=Pose(), num=0, on=False, alive=False):
@@ -33,7 +34,7 @@ class Robot_State():
         self.health = 2000
         self.bullet = 0
         self.heat = 0
-        self.position = position
+        # self.position = position
         self.can_move = True
         self.cant_move_time = 0 # the beginning time of no moving condition
         self.can_shoot = True
@@ -42,8 +43,8 @@ class Robot_State():
 
 
 class Robot():
-    def __init__(self, team, num=1, on=True, alive=True, position=[0,0]):
-        self.state = Robot_State(team, num, on, alive, position)
+    def __init__(self, team, position=[0,0], num=1, on=True, alive=True):
+        self.state = Robot_State(team, position, num, on, alive)
         self.ally_state = Robot_State()
 
     def kill(self):
@@ -57,7 +58,10 @@ class Robot():
         if self.ally_state.alive == True:
             self.ally_state.bullet += num
 
-    #TODO:def add_health(self, num=200):
+    def add_health(self, num=200):
+        self.state.health += num
+        if self.ally_state.alive == True:
+            self.ally_state.health += num
 
     def shoot(self, angle):
         if angle < 0:
