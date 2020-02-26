@@ -59,12 +59,12 @@ class RMAI_GAME():
         self.robots[2].ally_state = self.robots[3].state
         self.robots[3].ally_state = self.robots[2].state
 
-    def step(self, linear_speeds, angular_speeds, gimbal_speeds, shoot_commands):
+    def step(self, position_info, shoot_commands, linear_speeds, angular_speeds, gimbal_speeds):
         '''
         linear_speeds: linear speed of 4 robots' chassis, default = 0
         angular_speeds: angular_speeds speed of 4 robots' chassis, default = 0
         gimbal_speeds: angular_speeds speed of 4 robots' gimbal, default = 0
-        shoot_commands: shooting commands of 4 robots, containing shooting direction(0-360), default = -100 means no shooting
+        shoot_commands: shooting commands of 4 robots, containing shooting direction(0-360), default = -100 means no shooting  {'taget': 'Zara', 'Age': 7, 'Class': 'First'}
         '''
         # 1. send velocities to physical simulator
 
@@ -79,7 +79,11 @@ class RMAI_GAME():
         for i, robo in enumerate(self.robots):
             if robo.state.alive == False:
                 continue
-
+                
+            # 4.0 update position
+            robo.state.chasis_pose = position_info[i]
+            
+            
             # 4.1 funcional areas
             for f in self.map.fareas:
                 if f.inside(robo.state.pose.x, robo.state.pose.y):
@@ -126,8 +130,7 @@ class RMAI_GAME():
             if robo.state.heat > 360:
                 robo.state.health -= 2000
             
-        # 5 kill dead robot
-        for i, robo in enumerate(self.robots):
+            # 4.5 kill dead robot
             if robo.state.health <= 0:
                 robo.kill()
 
